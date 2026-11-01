@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LAN Chat Application</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <h2>LAN Chat Application</h2>
+
+    <div id="status">Connecting...</div>
+
+    <div id="messages"></div>
+
+    <div class="input-area">
+
+        <input type="text" id="username"
+               placeholder="Enter your name">
+
+        <input type="text" id="message"
+               placeholder="Type your message">
+
+        <button onclick="sendMessage()">Send</button>
+
+    </div>
+
+</div>
+
+<script>
+
+    const socket = io();
+
+    socket.on("connect", function() {
+        document.getElementById("status").textContent =
+            "Connected";
+    });
+
+    socket.on("disconnect", function() {
+        document.getElementById("status").textContent =
+            "Disconnected";
+    });
+
+    socket.on("message", function(data) {
+
+        const messages = document.getElementById("messages");
+
+        const item = document.createElement("p");
+
+        item.textContent = data;
+
+        messages.appendChild(item);
+
+        messages.scrollTop = messages.scrollHeight;
+
+    });
+
+    function sendMessage() {
+
+        const username = document.getElementById("username").value.trim();
+
+        const message = document.getElementById("message").value.trim();
+
+        if (!socket.connected) {
+            alert("Server is not connected!");
+            return;
+        }
+
+        if (username === "" || message === "") {
+            alert("Enter your name and message!");
+            return;
+        }
+
+        socket.send(username + ": " + message);
+
+        document.getElementById("message").value = "";
+
+    }
+
+</script>
+
+</body>
+</html>
